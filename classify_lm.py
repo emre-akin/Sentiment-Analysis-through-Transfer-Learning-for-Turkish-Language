@@ -37,17 +37,18 @@ def freeze_support():
 def run():
     freeze_support()
     print('loop')
-    
-    #data_lm = load_data('D:/Emre/source/data_equal/', 'data_lm_shop2_fn.pkl', bs=32)
-    #print(data_lm)
-    #tokenizer = Tokenizer(lang='tr')
-    #data_clas = TextClasDataBunch.from_csv('D:/Emre/source/data_equal/' ,vocab=data_lm.vocab ,csv_name='shop2_full_clas.csv', tokenizer=tokenizer)
-    #data_clas.save('shop2_data_clas.pkl')
-    data_clas = load_data('D:/Emre/source/data_equal/', 'shop2_data_clas.pkl', bs=32)
 
-    #data_clas = TextClasDataBunch.from_csv('D:/Emre/source/data_equal/',csv_name='shop2_full_clas.csv', bs=32)
+    PathCsv = Path('Path to your data')
+    
+    data_lm = load_data(PathCsv, 'data_lm_rest_fn.pkl', bs=32)
+    print(data_lm)
+    tokenizer = Tokenizer(lang='xx')
+    data_clas = TextClasDataBunch.from_csv(PathCsv ,vocab=data_lm.vocab ,csv_name='rest_full_clas.csv', tokenizer=tokenizer)
+    data_clas.save('rest_data_clas.pkl')
+    data_clas = load_data(PathCsv, 'rest_data_clas.pkl', bs=32)
+
     learn = text_classifier_learner(data_clas, AWD_LSTM, drop_mult=0.5)
-    learn.load_encoder('shop2_enc_fine_tuned')
+    learn.load_encoder('rest_enc_fine_tuned')
     f1_label1 = Fbeta_binary(1,clas = 0)
     f1_label0 = Fbeta_binary(1,clas = 1)
     learn.metrics=[accuracy, f1_label1,f1_label0]
@@ -58,18 +59,18 @@ def run():
     plt.show()
     print(learn.model)
     learn.fit_one_cycle(1, 1.45e-01, moms=(0.8,0.7))
-    #learn.save('shop2_first')
-    #learn.load('shop2_first')
+    learn.save('rest_first')
+    learn.load('rest_first')
 
     learn.freeze_to(-2)
     learn.fit_one_cycle(1, slice(1e-2/(2.6**4),1e-2), moms=(0.8,0.7))
-    #learn.save('shop2_second')
-    #learn.load('shop2_second')
+    learn.save('rest_second')
+    learn.load('rest_second')
 
     learn.freeze_to(-3)
     learn.fit_one_cycle(1, slice(5e-3/(2.6**4),5e-3), moms=(0.8,0.7))
-    #learn.save('shop2_third')  
-    #learn.load('shop2_third')
+    learn.save('rest_third')  
+    learn.load('rest_third')
 
     learn.unfreeze()
     learn.fit_one_cycle(2, slice(1e-3/(2.6**4),1e-3), moms=(0.8,0.7))
